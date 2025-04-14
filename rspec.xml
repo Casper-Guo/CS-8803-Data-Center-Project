@@ -1,0 +1,41 @@
+<rspec xmlns="http://www.geni.net/resources/rspec/3" xmlns:emulab="http://www.protogeni.net/resources/rspec/ext/emulab/1">
+  <!-- TCP Server -->
+  <node client_id="tcp-server" exclusive="true">
+    <hardware_type name="c220g2"/>
+    <interface client_id="if0"/>
+    <services>
+      <install_tarball url="https://github.com/Casper-Guo/CS-8803-Data-Center-Project/archive/refs/heads/high_packet_drop.tar.gz" install_path="/local/repository"/>
+      <execute command="sudo bash /local/repository/CS-8803-Data-Center-Project-high_packet_drop/tcp-server/startup.sh"/>
+    </services>
+  </node>
+
+  <!-- Homa Server -->
+  <node client_id="homa-server" exclusive="true">
+    <hardware_type name="c220g2"/>
+    <interface client_id="if0"/>
+    <services>
+      <install_tarball url="https://github.com/Casper-Guo/CS-8803-Data-Center-Project/archive/refs/heads/high_packet_drop.tar.gz" install_path="/local/repository"/>
+      <execute command="sudo bash /local/repository/CS-8803-Data-Center-Project-high_packet_drop/homa-server/startup.sh"/>
+    </services>
+  </node>
+
+  <!-- Load Generator -->
+  <node client_id="loadgen" exclusive="true">
+    <hardware_type name="c220g2"/>
+    <interface client_id="if0"/>
+    <services>
+      <install_tarball url="https://github.com/Casper-Guo/CS-8803-Data-Center-Project/archive/refs/heads/high_packet_drop.tar.gz" install_path="/local/repository"/>
+      <execute command="sudo bash /local/repository/CS-8803-Data-Center-Project-high_packet_drop/loadgen/startup.sh"/>
+    </services>
+  </node>
+
+  <!-- Receiver -->
+  <node client_id="receiver" exclusive="true">
+    <hardware_type name="c220g2"/>
+    <interface client_id="if0"/>
+    <services>
+      <install_tarball url="https://github.com/Casper-Guo/CS-8803-Data-Center-Project/archive/refs/heads/high_packet_drop.tar.gz" install_path="/local/repository"/>
+      <execute command="sudo bash /local/repository/CS-8803-Data-Center-Project-high_packet_drop/receiver/startup.sh"/>
+    </services>
+  </node>
+</rspec>
