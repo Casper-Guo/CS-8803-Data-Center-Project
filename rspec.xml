@@ -1,40 +1,70 @@
-<rspec xmlns="http://www.geni.net/resources/rspec/3" xmlns:emulab="http://www.protogeni.net/resources/rspec/ext/emulab/1">
+<rspec xmlns="http://www.geni.net/resources/rspec/3"
+       xmlns:emulab="http://www.protogeni.net/resources/rspec/ext/emulab/1"
+       xmlns:tour="http://www.protogeni.net/resources/rspec/ext/apt-tour/1"
+       xmlns:jacks="http://www.protogeni.net/resources/rspec/ext/jacks/1"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.geni.net/resources/rspec/3 http://www.geni.net/resources/rspec/3/request.xsd"
+       type="request">
+
+  <rspec_tour xmlns="http://www.protogeni.net/resources/rspec/ext/apt-tour/1">
+    <description xmlns="" type="markdown">
+      This profile sets up a 4-node topology for evaluating the performance of Homa vs TCP under datacenter-like conditions.
+      It includes a load generator, Homa server, TCP server, and receiver node connected via high-speed links.
+    </description>
+    <instructions xmlns="" type="markdown">
+      SSH into each node using the CloudLab web terminal or SSH client.
+      Each node will automatically download your experiment scripts from GitHub and start the appropriate role (e.g., sender, server, logger).
+    </instructions>
+  </rspec_tour>
+
   <!-- TCP Server -->
   <node client_id="tcp-server" exclusive="true">
-    <hardware_type name="c220g2"/>
-    <interface client_id="if0"/>
+    <hardware_type name="r320"/>
+    <sliver_type name="raw-pc">
+      <disk_image name="urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU20-64-STD"/>
+    </sliver_type>
     <services>
-      <install_tarball url="https://github.com/Casper-Guo/CS-8803-Data-Center-Project/archive/refs/heads/high_packet_drop.tar.gz" install_path="/local/repository"/>
+      <install_tarball url="https://github.com/Casper-Guo/CS-8803-Data-Center-Project/archive/refs/heads/high_packet_drop.tar.gz"
+                       install_path="/local/repository"/>
       <execute command="sudo bash /local/repository/CS-8803-Data-Center-Project-high_packet_drop/tcp-server/startup.sh"/>
     </services>
   </node>
 
   <!-- Homa Server -->
   <node client_id="homa-server" exclusive="true">
-    <hardware_type name="c220g2"/>
-    <interface client_id="if0"/>
+    <hardware_type name="r320"/>
+    <sliver_type name="raw-pc">
+      <disk_image name="urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU20-64-STD"/>
+    </sliver_type>
     <services>
-      <install_tarball url="https://github.com/Casper-Guo/CS-8803-Data-Center-Project/archive/refs/heads/high_packet_drop.tar.gz" install_path="/local/repository"/>
+      <install_tarball url="https://github.com/Casper-Guo/CS-8803-Data-Center-Project/archive/refs/heads/high_packet_drop.tar.gz"
+                       install_path="/local/repository"/>
       <execute command="sudo bash /local/repository/CS-8803-Data-Center-Project-high_packet_drop/homa-server/startup.sh"/>
     </services>
   </node>
 
   <!-- Load Generator -->
   <node client_id="loadgen" exclusive="true">
-    <hardware_type name="c220g2"/>
-    <interface client_id="if0"/>
+    <hardware_type name="r320"/>
+    <sliver_type name="raw-pc">
+      <disk_image name="urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU20-64-STD"/>
+    </sliver_type>
     <services>
-      <install_tarball url="https://github.com/Casper-Guo/CS-8803-Data-Center-Project/archive/refs/heads/high_packet_drop.tar.gz" install_path="/local/repository"/>
+      <install_tarball url="https://github.com/Casper-Guo/CS-8803-Data-Center-Project/archive/refs/heads/high_packet_drop.tar.gz"
+                       install_path="/local/repository"/>
       <execute command="sudo bash /local/repository/CS-8803-Data-Center-Project-high_packet_drop/loadgen/startup.sh"/>
     </services>
   </node>
 
   <!-- Receiver -->
   <node client_id="receiver" exclusive="true">
-    <hardware_type name="c220g2"/>
-    <interface client_id="if0"/>
+    <hardware_type name="r320"/>
+    <sliver_type name="raw-pc">
+      <disk_image name="urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU20-64-STD"/>
+    </sliver_type>
     <services>
-      <install_tarball url="https://github.com/Casper-Guo/CS-8803-Data-Center-Project/archive/refs/heads/high_packet_drop.tar.gz" install_path="/local/repository"/>
+      <install_tarball url="https://github.com/Casper-Guo/CS-8803-Data-Center-Project/archive/refs/heads/high_packet_drop.tar.gz"
+                       install_path="/local/repository"/>
       <execute command="sudo bash /local/repository/CS-8803-Data-Center-Project-high_packet_drop/receiver/startup.sh"/>
     </services>
   </node>
