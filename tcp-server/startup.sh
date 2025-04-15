@@ -1,23 +1,24 @@
 #!/bin/bash
 set -e
 
-# Install tools
-apt-get update
-apt-get install -y dstat iproute2 net-tools
+# Install dependencies
+sudo apt-get update
+sudo apt-get install -y python3 python3-pip dstat git build-essential ethtool iproute2
+pip3 install --user numpy
 
-# Log setup
-mkdir -p /root/logs
+# Clone repo
+cd ~
+git clone https://github.com/Casper-Guo/CS-8803-Data-Center-Project.git
+cd CS-8803-Data-Center-Project
+git checkout high_packet_drop
 
-# CPU, net, and disk stats
-nohup dstat -cdnlmt --output /root/logs/dstat.csv 1 > /dev/null 2>&1 &
+# Enable ECN and use DCTCP
+sudo sysctl -w net.ipv4.tcp_ecn=1
+sudo sysctl -w net.ipv4.tcp_congestion_control=dctcp
 
-# Interface stats
-iface=$(ip -o link show | awk -F': ' '{print $2}' | grep -E '^e' | head -n 1)
-nohup bash -c "while true; do date >> /root/logs/ifstat.log; ifconfig \$iface >> /root/logs/ifstat.log; sleep 1; done" &
+# Reduce delayed ACK timeout (Linux default is too high)
+echo 0 | sudo tee /proc/sys/net/ipv4/tcp_delack_min > /dev/null
 
-# Latency log placeholder
-touch /root/logs/latency.log
-echo "timestamp,protocol,msg_size,duration_us" > /root/logs/latency.log
-
-# Tar results (to run later manually)
-# tar czvf /root/results.tar.gz /root/send_*.log /root/tcp_server_metrics.log /root/logs
+# Start TCP server
+cd tcp-server
+nohup python3 custom_tcp_server.py > ~/tcp_server.log 2>&1 &

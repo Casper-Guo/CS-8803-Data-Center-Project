@@ -1,23 +1,26 @@
 #!/bin/bash
 set -e
 
-# Install tools
-apt-get update
-apt-get install -y dstat iproute2 net-tools
+# Install dependencies
+sudo apt-get update
+sudo apt-get install -y python3 python3-pip dstat git build-essential
+pip3 install --user numpy
 
-# Log setup
-mkdir -p /root/logs
+# Clone project repository
+cd ~
+git clone https://github.com/Casper-Guo/CS-8803-Data-Center-Project.git
+cd CS-8803-Data-Center-Project
+git checkout high_packet_drop
 
-# CPU, net, and disk stats
-nohup dstat -cdnlmt --output /root/logs/dstat.csv 1 > /dev/null 2>&1 &
+# Clone and build HomaModule
+cd ~
+git clone https://github.com/PlatformLab/HomaModule.git
+cd HomaModule
+make -j$(nproc)
 
-# Interface stats
-iface=$(ip -o link show | awk -F': ' '{print $2}' | grep -E '^e' | head -n 1)
-nohup bash -c "while true; do date >> /root/logs/ifstat.log; ifconfig \$iface >> /root/logs/ifstat.log; sleep 1; done" &
+# Load Homa kernel module
+sudo insmod homa.ko || echo "Homa module already loaded"
 
-# Latency log placeholder
-touch /root/logs/latency.log
-echo "timestamp,protocol,msg_size,duration_us" > /root/logs/latency.log
-
-# Tar results (to run later manually)
-# tar czvf /root/results.tar.gz /root/send_*.log /root/homa_server_metrics.log /root/logs
+# Start Homa server using cp_node
+cd util
+nohup ./cp_node server > ~/homa_server.log 2>&1 &

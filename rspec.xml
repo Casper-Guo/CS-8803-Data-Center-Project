@@ -1,108 +1,86 @@
 <rspec xmlns="http://www.geni.net/resources/rspec/3"
        xmlns:emulab="http://www.protogeni.net/resources/rspec/ext/emulab/1"
        xmlns:tour="http://www.protogeni.net/resources/rspec/ext/apt-tour/1"
-       xmlns:jacks="http://www.protogeni.net/resources/rspec/ext/jacks/1"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.geni.net/resources/rspec/3 http://www.geni.net/resources/rspec/3/request.xsd"
        type="request">
 
   <rspec_tour xmlns="http://www.protogeni.net/resources/rspec/ext/apt-tour/1">
     <description xmlns="" type="markdown">
-      This profile sets up a 4-node topology for evaluating the performance of Homa vs TCP under datacenter-like conditions.
-      It includes a load generator, Homa server, TCP server, and receiver node connected via high-speed links.
+      4-node topology: loadgen, TCP server, Homa server, receiver.
     </description>
     <instructions xmlns="" type="markdown">
-      SSH into each node using the CloudLab web terminal or SSH client.
-      Each node will automatically download your experiment scripts from GitHub and start the appropriate role (e.g., sender, server, logger).
+      SSH into each node to run installation and startup scripts manually.
     </instructions>
   </rspec_tour>
 
-  <!-- TCP Server -->
-  <node client_id="tcp-server" exclusive="true">
-    <hardware_type name="r320"/>
+  <node client_id="tcp-server" exclusive="true" component_manager_id="urn:publicid:IDN+emulab.net+authority+cm">
+    <hardware_type name="pc3000"/>
     <sliver_type name="raw-pc">
-      <disk_image name="urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU20-64-STD"/>
+      <disk_image name="urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU22-64-STD"/>
     </sliver_type>
     <interface client_id="tcp-server:if0"/>
     <interface client_id="tcp-server:if1"/>
-    <services>
-      <install_tarball url="https://github.com/Casper-Guo/CS-8803-Data-Center-Project/archive/refs/heads/high_packet_drop.tar.gz"
-                       install_path="/local/repository"/>
-      <execute command="sudo bash /local/repository/CS-8803-Data-Center-Project-high_packet_drop/tcp-server/startup.sh"/>
-    </services>
   </node>
 
-  <!-- Homa Server -->
-  <node client_id="homa-server" exclusive="true">
-    <hardware_type name="r320"/>
+  <node client_id="homa-server" exclusive="true" component_manager_id="urn:publicid:IDN+emulab.net+authority+cm">
+    <hardware_type name="pc3000"/>
     <sliver_type name="raw-pc">
-      <disk_image name="urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU20-64-STD"/>
+      <disk_image name="urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU22-64-STD"/>
     </sliver_type>
     <interface client_id="homa-server:if0"/>
     <interface client_id="homa-server:if1"/>
-    <services>
-      <install_tarball url="https://github.com/Casper-Guo/CS-8803-Data-Center-Project/archive/refs/heads/high_packet_drop.tar.gz"
-                       install_path="/local/repository"/>
-      <execute command="sudo bash /local/repository/CS-8803-Data-Center-Project-high_packet_drop/homa-server/startup.sh"/>
-    </services>
   </node>
 
-  <!-- Load Generator -->
-  <node client_id="loadgen" exclusive="true">
-    <hardware_type name="r320"/>
+  <node client_id="loadgen" exclusive="true" component_manager_id="urn:publicid:IDN+emulab.net+authority+cm">
+    <hardware_type name="pc3000"/>
     <sliver_type name="raw-pc">
-      <disk_image name="urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU20-64-STD"/>
+      <disk_image name="urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU22-64-STD"/>
     </sliver_type>
     <interface client_id="loadgen:if0"/>
     <interface client_id="loadgen:if1"/>
     <interface client_id="loadgen:if2"/>
-    <services>
-      <install_tarball url="https://github.com/Casper-Guo/CS-8803-Data-Center-Project/archive/refs/heads/high_packet_drop.tar.gz"
-                       install_path="/local/repository"/>
-      <execute command="sudo bash /local/repository/CS-8803-Data-Center-Project-high_packet_drop/loadgen/startup.sh"/>
-    </services>
   </node>
 
-  <!-- Receiver -->
-  <node client_id="receiver" exclusive="true">
-    <hardware_type name="r320"/>
+  <node client_id="receiver" exclusive="true" component_manager_id="urn:publicid:IDN+emulab.net+authority+cm">
+    <hardware_type name="pc3000"/>
     <sliver_type name="raw-pc">
-      <disk_image name="urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU20-64-STD"/>
+      <disk_image name="urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU22-64-STD"/>
     </sliver_type>
     <interface client_id="receiver:if0"/>
     <interface client_id="receiver:if1"/>
     <interface client_id="receiver:if2"/>
-    <services>
-      <install_tarball url="https://github.com/Casper-Guo/CS-8803-Data-Center-Project/archive/refs/heads/high_packet_drop.tar.gz"
-                       install_path="/local/repository"/>
-      <execute command="sudo bash /local/repository/CS-8803-Data-Center-Project-high_packet_drop/receiver/startup.sh"/>
-    </services>
   </node>
 
-  <!-- Explicit Network Links -->
+  <!-- Links -->
   <link client_id="link-loadgen-tcp">
     <interface_ref client_id="loadgen:if0"/>
     <interface_ref client_id="tcp-server:if0"/>
+    <component_manager name="urn:publicid:IDN+emulab.net+authority+cm"/>
   </link>
 
   <link client_id="link-loadgen-homa">
     <interface_ref client_id="loadgen:if1"/>
     <interface_ref client_id="homa-server:if0"/>
+    <component_manager name="urn:publicid:IDN+emulab.net+authority+cm"/>
   </link>
 
   <link client_id="link-loadgen-receiver">
     <interface_ref client_id="loadgen:if2"/>
     <interface_ref client_id="receiver:if0"/>
+    <component_manager name="urn:publicid:IDN+emulab.net+authority+cm"/>
   </link>
 
   <link client_id="link-tcp-receiver">
     <interface_ref client_id="tcp-server:if1"/>
     <interface_ref client_id="receiver:if1"/>
+    <component_manager name="urn:publicid:IDN+emulab.net+authority+cm"/>
   </link>
 
   <link client_id="link-homa-receiver">
     <interface_ref client_id="homa-server:if1"/>
     <interface_ref client_id="receiver:if2"/>
+    <component_manager name="urn:publicid:IDN+emulab.net+authority+cm"/>
   </link>
 
 </rspec>
