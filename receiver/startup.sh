@@ -1,18 +1,23 @@
 #!/bin/bash
+set -e
+
+# Install tools
 apt-get update
 apt-get install -y dstat iproute2 net-tools
 
-# Log directory
+# Log setup
 mkdir -p /root/logs
 
-# Log CPU, net, and disk every second
+# CPU, net, and disk stats
 nohup dstat -cdnlmt --output /root/logs/dstat.csv 1 > /dev/null 2>&1 &
 
-# Track interface stats
-nohup bash -c 'while true; do date >> /root/logs/ifstat.log; ifconfig eth0 >> /root/logs/ifstat.log; sleep 1; done' &
+# Interface stats
+iface=$(ip -o link show | awk -F': ' '{print $2}' | grep -E '^e' | head -n 1)
+nohup bash -c "while true; do date >> /root/logs/ifstat.log; ifconfig \$iface >> /root/logs/ifstat.log; sleep 1; done" &
 
-# Placeholder for latency logs
+# Latency log
 touch /root/logs/latency.log
 echo "timestamp,protocol,msg_size,duration_us" > /root/logs/latency.log
-tar czvf /root/results.tar.gz /root/send_*.log /root/tcp_server_metrics.log /root/homa_server_metrics.log /root/logs
 
+# Tar results (to run later manually)
+# tar czvf /root/results.tar.gz /root/send_*.log /root/tcp_server_metrics.log /root/homa_server_metrics.log /root/logs

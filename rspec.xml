@@ -23,6 +23,8 @@
     <sliver_type name="raw-pc">
       <disk_image name="urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU20-64-STD"/>
     </sliver_type>
+    <interface client_id="tcp-server:if0"/>
+    <interface client_id="tcp-server:if1"/>
     <services>
       <install_tarball url="https://github.com/Casper-Guo/CS-8803-Data-Center-Project/archive/refs/heads/high_packet_drop.tar.gz"
                        install_path="/local/repository"/>
@@ -36,6 +38,8 @@
     <sliver_type name="raw-pc">
       <disk_image name="urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU20-64-STD"/>
     </sliver_type>
+    <interface client_id="homa-server:if0"/>
+    <interface client_id="homa-server:if1"/>
     <services>
       <install_tarball url="https://github.com/Casper-Guo/CS-8803-Data-Center-Project/archive/refs/heads/high_packet_drop.tar.gz"
                        install_path="/local/repository"/>
@@ -49,6 +53,9 @@
     <sliver_type name="raw-pc">
       <disk_image name="urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU20-64-STD"/>
     </sliver_type>
+    <interface client_id="loadgen:if0"/>
+    <interface client_id="loadgen:if1"/>
+    <interface client_id="loadgen:if2"/>
     <services>
       <install_tarball url="https://github.com/Casper-Guo/CS-8803-Data-Center-Project/archive/refs/heads/high_packet_drop.tar.gz"
                        install_path="/local/repository"/>
@@ -62,10 +69,40 @@
     <sliver_type name="raw-pc">
       <disk_image name="urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU20-64-STD"/>
     </sliver_type>
+    <interface client_id="receiver:if0"/>
+    <interface client_id="receiver:if1"/>
+    <interface client_id="receiver:if2"/>
     <services>
       <install_tarball url="https://github.com/Casper-Guo/CS-8803-Data-Center-Project/archive/refs/heads/high_packet_drop.tar.gz"
                        install_path="/local/repository"/>
       <execute command="sudo bash /local/repository/CS-8803-Data-Center-Project-high_packet_drop/receiver/startup.sh"/>
     </services>
   </node>
+
+  <!-- Explicit Network Links -->
+  <link client_id="link-loadgen-tcp">
+    <interface_ref client_id="loadgen:if0"/>
+    <interface_ref client_id="tcp-server:if0"/>
+  </link>
+
+  <link client_id="link-loadgen-homa">
+    <interface_ref client_id="loadgen:if1"/>
+    <interface_ref client_id="homa-server:if0"/>
+  </link>
+
+  <link client_id="link-loadgen-receiver">
+    <interface_ref client_id="loadgen:if2"/>
+    <interface_ref client_id="receiver:if0"/>
+  </link>
+
+  <link client_id="link-tcp-receiver">
+    <interface_ref client_id="tcp-server:if1"/>
+    <interface_ref client_id="receiver:if1"/>
+  </link>
+
+  <link client_id="link-homa-receiver">
+    <interface_ref client_id="homa-server:if1"/>
+    <interface_ref client_id="receiver:if2"/>
+  </link>
+
 </rspec>

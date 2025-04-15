@@ -1,18 +1,23 @@
 #!/bin/bash
+set -e
+
+# Install tools
 apt-get update
-apt-get install -y python3
+apt-get install -y dstat iproute2 net-tools
 
-# Set TCP tuning params
-sysctl -w net.ipv4.tcp_retries2=5
-sysctl -w net.ipv4.tcp_frto=1
-sysctl -w net.ipv4.tcp_mtu_probing=1
-sysctl -w net.ipv4.tcp_ecn=1
+# Log setup
+mkdir -p /root/logs
 
-# AQM
-tc qdisc add dev eth0 root handle 1: htb default 12
-tc class add dev eth0 parent 1: classid 1:1 htb rate 1000mbit
-tc class add dev eth0 parent 1:1 classid 1:12 htb rate 100mbit ceil 1000mbit
-tc qdisc add dev eth0 parent 1:12 handle 10: fq_codel
+# CPU, net, and disk stats
+nohup dstat -cdnlmt --output /root/logs/dstat.csv 1 > /dev/null 2>&1 &
 
-# Run custom TCP server
-python3 /local/repository/CS-8803-Data-Center-Project-high_packet_drop/tcp-server/custom_tcp_server.py > /root/tcp-server.log 2>&1 &
+# Interface stats
+iface=$(ip -o link show | awk -F': ' '{print $2}' | grep -E '^e' | head -n 1)
+nohup bash -c "while true; do date >> /root/logs/ifstat.log; ifconfig \$iface >> /root/logs/ifstat.log; sleep 1; done" &
+
+# Latency log placeholder
+touch /root/logs/latency.log
+echo "timestamp,protocol,msg_size,duration_us" > /root/logs/latency.log
+
+# Tar results (to run later manually)
+# tar czvf /root/results.tar.gz /root/send_*.log /root/tcp_server_metrics.log /root/logs
