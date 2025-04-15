@@ -3,7 +3,7 @@ import random
 import time
 from datetime import datetime
 
-SERVER_IP = "10.10.1.3"  # IP of homa-server
+SERVER_IP = "10.10.2.2"  # IP of homa-server
 PORT = 12345
 NUM_MESSAGES = 1000
 
