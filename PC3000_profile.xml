@@ -1,0 +1,108 @@
+<rspec xmlns="http://www.geni.net/resources/rspec/3"
+    xmlns:emulab="http://www.protogeni.net/resources/rspec/ext/emulab/1"
+    xmlns:tour="http://www.protogeni.net/resources/rspec/ext/apt-tour/1"
+    xmlns:jacks="http://www.protogeni.net/resources/rspec/ext/jacks/1"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.geni.net/resources/rspec/3 http://www.geni.net/resources/rspec/3/request.xsd"
+    type="request">
+    <rspec_tour xmlns="http://www.protogeni.net/resources/rspec/ext/apt-tour/1">
+        <description xmlns="" type="markdown">This profile sets up a 4-node topology for evaluating
+            the performance of Homa vs TCP under datacenter-like conditions. It includes a load
+            generator, Homa server, TCP server, and receiver node connected via high-speed links
+            (10/100 Gbps). All nodes run Ubuntu 20.04 and are configured for custom transport-layer
+            benchmarking workloads including RPC-like small messages, bursty traffic, and bulk
+            transfers.</description>
+        <instructions xmlns="" type="markdown">After the experiment is created, SSH into each node
+            using the CloudLab web terminal or your SSH client.
+
+            On homa-server, clone and compile the Homa kernel module, then run the Homa receiver
+            app.
+
+            On tcp-server, run a TCP-based receiver (e.g., netperf, iperf3, or custom script).
+
+            From loadgen, initiate traffic to both servers using Homa and TCP senders.
+
+            Use receiver to log responses and collect tail latency metrics.
+            Enable ECN, TSQ, and appropriate TCP tuning where needed. Ensure priority queuing is set
+            via tc commands if testing Homa's advantages.</instructions>
+    </rspec_tour>
+    <node xmlns="http://www.geni.net/resources/rspec/3" client_id="tcp-server">
+        <icon xmlns="http://www.protogeni.net/resources/rspec/ext/jacks/1"
+            url="https://www.emulab.net/protogeni/jacks-stable/images/server.svg" />
+        <sliver_type xmlns="http://www.geni.net/resources/rspec/3" name="raw-pc">
+            <disk_image xmlns="http://www.geni.net/resources/rspec/3"
+                name="urn:publicid:IDN+emulab.net+image+homa-vs-tcp:homa610" />
+        </sliver_type>
+        <hardware_type xmlns="http://www.geni.net/resources/rspec/3" name="pc3000" />
+        <services xmlns="http://www.geni.net/resources/rspec/3" />
+        <interface xmlns="http://www.geni.net/resources/rspec/3" client_id="interface-4" />
+        <interface xmlns="http://www.geni.net/resources/rspec/3" client_id="interface-9" />
+        <interface xmlns="http://www.geni.net/resources/rspec/3" client_id="interface-11" />
+    </node>
+    <node xmlns="http://www.geni.net/resources/rspec/3" client_id="receiver">
+        <icon xmlns="http://www.protogeni.net/resources/rspec/ext/jacks/1"
+            url="https://www.emulab.net/protogeni/jacks-stable/images/server.svg" />
+        <sliver_type xmlns="http://www.geni.net/resources/rspec/3" name="raw-pc">
+            <disk_image xmlns="http://www.geni.net/resources/rspec/3"
+                name="urn:publicid:IDN+emulab.net+image+homa-vs-tcp:homa610" />
+        </sliver_type>
+        <hardware_type xmlns="http://www.geni.net/resources/rspec/3" name="pc3000" />
+        <services xmlns="http://www.geni.net/resources/rspec/3" />
+        <interface xmlns="http://www.geni.net/resources/rspec/3" client_id="interface-3" />
+        <interface xmlns="http://www.geni.net/resources/rspec/3" client_id="interface-6" />
+        <interface xmlns="http://www.geni.net/resources/rspec/3" client_id="interface-8" />
+    </node>
+    <node xmlns="http://www.geni.net/resources/rspec/3" client_id="homa-server">
+        <icon xmlns="http://www.protogeni.net/resources/rspec/ext/jacks/1"
+            url="https://www.emulab.net/protogeni/jacks-stable/images/server.svg" />
+        <sliver_type xmlns="http://www.geni.net/resources/rspec/3" name="raw-pc">
+            <disk_image xmlns="http://www.geni.net/resources/rspec/3"
+                name="urn:publicid:IDN+emulab.net+image+homa-vs-tcp:homa610" />
+        </sliver_type>
+        <hardware_type xmlns="http://www.geni.net/resources/rspec/3" name="pc3000" />
+        <services xmlns="http://www.geni.net/resources/rspec/3" />
+        <interface xmlns="http://www.geni.net/resources/rspec/3" client_id="interface-1" />
+        <interface xmlns="http://www.geni.net/resources/rspec/3" client_id="interface-7" />
+        <interface xmlns="http://www.geni.net/resources/rspec/3" client_id="interface-10" />
+    </node>
+    <node xmlns="http://www.geni.net/resources/rspec/3" client_id="loadgen">
+        <icon xmlns="http://www.protogeni.net/resources/rspec/ext/jacks/1"
+            url="https://www.emulab.net/protogeni/jacks-stable/images/server.svg" />
+        <sliver_type xmlns="http://www.geni.net/resources/rspec/3" name="raw-pc">
+            <disk_image xmlns="http://www.geni.net/resources/rspec/3"
+                name="urn:publicid:IDN+emulab.net+image+homa-vs-tcp:homa610" />
+        </sliver_type>
+        <hardware_type xmlns="http://www.geni.net/resources/rspec/3" name="pc3000" />
+        <services xmlns="http://www.geni.net/resources/rspec/3" />
+        <interface xmlns="http://www.geni.net/resources/rspec/3" client_id="interface-0" />
+        <interface xmlns="http://www.geni.net/resources/rspec/3" client_id="interface-2" />
+        <interface xmlns="http://www.geni.net/resources/rspec/3" client_id="interface-5" />
+    </node>
+    <link xmlns="http://www.geni.net/resources/rspec/3" client_id="link-0">
+        <interface_ref xmlns="http://www.geni.net/resources/rspec/3" client_id="interface-0" />
+        <interface_ref xmlns="http://www.geni.net/resources/rspec/3" client_id="interface-1" />
+        <site xmlns="http://www.protogeni.net/resources/rspec/ext/jacks/1" id="undefined" />
+    </link>
+    <link xmlns="http://www.geni.net/resources/rspec/3" client_id="link-1">
+        <interface_ref xmlns="http://www.geni.net/resources/rspec/3" client_id="interface-2" />
+        <interface_ref xmlns="http://www.geni.net/resources/rspec/3" client_id="interface-3" />
+        <interface_ref xmlns="http://www.geni.net/resources/rspec/3" client_id="interface-10" />
+        <interface_ref xmlns="http://www.geni.net/resources/rspec/3" client_id="interface-11" />
+        <site xmlns="http://www.protogeni.net/resources/rspec/ext/jacks/1" id="undefined" />
+    </link>
+    <link xmlns="http://www.geni.net/resources/rspec/3" client_id="link-2">
+        <interface_ref xmlns="http://www.geni.net/resources/rspec/3" client_id="interface-4" />
+        <interface_ref xmlns="http://www.geni.net/resources/rspec/3" client_id="interface-5" />
+        <site xmlns="http://www.protogeni.net/resources/rspec/ext/jacks/1" id="undefined" />
+    </link>
+    <link xmlns="http://www.geni.net/resources/rspec/3" client_id="link-3">
+        <interface_ref xmlns="http://www.geni.net/resources/rspec/3" client_id="interface-6" />
+        <interface_ref xmlns="http://www.geni.net/resources/rspec/3" client_id="interface-7" />
+        <site xmlns="http://www.protogeni.net/resources/rspec/ext/jacks/1" id="undefined" />
+    </link>
+    <link xmlns="http://www.geni.net/resources/rspec/3" client_id="link-4">
+        <interface_ref xmlns="http://www.geni.net/resources/rspec/3" client_id="interface-8" />
+        <interface_ref xmlns="http://www.geni.net/resources/rspec/3" client_id="interface-9" />
+        <site xmlns="http://www.protogeni.net/resources/rspec/ext/jacks/1" id="undefined" />
+    </link>
+</rspec>
