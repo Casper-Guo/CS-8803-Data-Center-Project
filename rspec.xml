@@ -1,0 +1,80 @@
+<rspec xmlns="http://www.geni.net/resources/rspec/3"
+       xmlns:emulab="http://www.protogeni.net/resources/rspec/ext/emulab/1"
+       xmlns:tour="http://www.protogeni.net/resources/rspec/ext/apt-tour/1"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.geni.net/resources/rspec/3 http://www.geni.net/resources/rspec/3/request.xsd"
+       type="request">
+
+  <rspec_tour xmlns="http://www.protogeni.net/resources/rspec/ext/apt-tour/1">
+    <description xmlns="" type="markdown">
+      4-node topology: loadgen, TCP server, Homa server, receiver.
+    </description>
+    <instructions xmlns="" type="markdown">
+      UBUNTU24-64-STD + Linux kernel 6.10
+    </instructions>
+  </rspec_tour>
+
+  <node client_id="node0" exclusive="true">
+    <hardware_type name="pc3000"/>
+    <sliver_type name="raw-pc">
+      <disk_image name="urn:publicid:IDN+emulab.net+image+homa-vs-tcp:homa610"/>
+    </sliver_type>
+    <interface client_id="tcp-server:if0"/>
+    <interface client_id="tcp-server:if1"/>
+  </node>
+
+  <node client_id="node1" exclusive="true">
+    <hardware_type name="pc3000"/>
+    <sliver_type name="raw-pc">
+      <disk_image name="urn:publicid:IDN+emulab.net+image+homa-vs-tcp:homa610"/>
+    </sliver_type>
+    <interface client_id="homa-server:if0"/>
+    <interface client_id="homa-server:if1"/>
+  </node>
+
+  <node client_id="node2" exclusive="true">
+    <hardware_type name="pc3000"/>
+    <sliver_type name="raw-pc">
+      <disk_image name="urn:publicid:IDN+emulab.net+image+homa-vs-tcp:homa610"/>
+    </sliver_type>
+    <interface client_id="loadgen:if0"/>
+    <interface client_id="loadgen:if1"/>
+    <interface client_id="loadgen:if2"/>
+  </node>
+
+  <node client_id="node3" exclusive="true">
+    <hardware_type name="pc3000"/>
+    <sliver_type name="raw-pc">
+      <disk_image name="urn:publicid:IDN+emulab.net+image+homa-vs-tcp:homa610"/>
+    </sliver_type>
+    <interface client_id="receiver:if0"/>
+    <interface client_id="receiver:if1"/>
+    <interface client_id="receiver:if2"/>
+  </node>
+
+  <link client_id="link-loadgen-tcp">
+    <interface_ref client_id="loadgen:if0"/>
+    <interface_ref client_id="tcp-server:if0"/>
+  </link>
+
+  <link client_id="link-loadgen-homa">
+    <interface_ref client_id="loadgen:if1"/>
+    <interface_ref client_id="homa-server:if0"/>
+  </link>
+
+  <link client_id="link-loadgen-receiver">
+    <interface_ref client_id="loadgen:if2"/>
+    <interface_ref client_id="receiver:if0"/>
+  </link>
+
+  <link client_id="link-tcp-receiver">
+    <interface_ref client_id="tcp-server:if1"/>
+    <interface_ref client_id="receiver:if1"/>
+  </link>
+
+  <link client_id="link-homa-receiver">
+    <interface_ref client_id="homa-server:if1"/>
+    <interface_ref client_id="receiver:if2"/>
+  </link>
+
+</rspec>

@@ -1,0 +1,69 @@
+import csv
+import numpy as np
+
+sender_log = "send_tcp.log"
+sender_latencies = []
+
+server_log = "tcp_server_metrics.log"
+server_latencies = []
+msg_sizes = []
+
+dstat_log = "dstat.csv"
+cpu_usages = []
+net_rx = []
+net_tx = []
+
+with open(sender_log) as f:
+    for row in csv.reader(f):
+        if len(row) != 4 or row[0].startswith("timestamp"):
+            continue
+        _, _, size, latency_us = row
+        sender_latencies.append(float(latency_us))
+
+with open(server_log) as f:
+    for row in csv.reader(f):
+        if len(row) != 3 or row[0].startswith("timestamp"):
+            continue
+        _, size, latency_us = row
+        server_latencies.append(float(latency_us))
+        msg_sizes.append(int(size))
+
+with open(dstat_log) as f:
+    for row in csv.reader(f):
+        if row[0].startswith("epoch") or "usr" not in row[0]:
+            continue
+        try:
+            cpu = float(row[2])  # user%
+            netin = float(row[10])  # net/recv
+            netout = float(row[11])  # net/send
+            cpu_usages.append(cpu)
+            net_rx.append(netin)
+            net_tx.append(netout)
+        except:
+            continue
+
+def p(n, data):
+    if not data: return 0
+    data.sort()
+    return data[int(n * len(data)) - 1]
+
+print("=== Sender-Side Latency ===")
+print(f"P50: {p(0.5, sender_latencies):.2f} us")
+print(f"P99: {p(0.99, sender_latencies):.2f} us")
+print(f"P99.9: {p(0.999, sender_latencies):.2f} us")
+print(f"Max: {max(sender_latencies):.2f} us")
+
+print("\n=== Receiver-Side Latency ===")
+print(f"P50: {p(0.5, server_latencies):.2f} us")
+print(f"P99: {p(0.99, server_latencies):.2f} us")
+print(f"P99.9: {p(0.999, server_latencies):.2f} us")
+
+print("\n=== Message Sizes ===")
+print(f"Total messages: {len(msg_sizes)}")
+print(f"Avg msg size: {np.mean(msg_sizes)/1024:.2f} KB")
+
+print("\n=== System Stats ===")
+print(f"Avg CPU usage: {np.mean(cpu_usages):.2f}%")
+print(f"Max CPU usage: {max(cpu_usages):.2f}%")
+print(f"Avg Net Rx: {np.mean(net_rx):.2f} KB/s")
+print(f"Avg Net Tx: {np.mean(net_tx):.2f} KB/s")
