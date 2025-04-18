@@ -19,8 +19,9 @@
     <sliver_type name="raw-pc">
       <disk_image name="urn:publicid:IDN+emulab.net+image+homa-vs-tcp:homa610"/>
     </sliver_type>
-    <interface client_id="tcp-server:if0"/>
-    <interface client_id="tcp-server:if1"/>
+    <interface client_id="node0:if0"/>
+    <interface client_id="node0:if1"/>
+    <interface client_id="node0:if2"/>
   </node>
 
   <node client_id="node1" exclusive="true">
@@ -28,8 +29,9 @@
     <sliver_type name="raw-pc">
       <disk_image name="urn:publicid:IDN+emulab.net+image+homa-vs-tcp:homa610"/>
     </sliver_type>
-    <interface client_id="homa-server:if0"/>
-    <interface client_id="homa-server:if1"/>
+    <interface client_id="node1:if0"/>
+    <interface client_id="node1:if1"/>
+    <interface client_id="node1:if2"/>
   </node>
 
   <node client_id="node2" exclusive="true">
@@ -37,9 +39,9 @@
     <sliver_type name="raw-pc">
       <disk_image name="urn:publicid:IDN+emulab.net+image+homa-vs-tcp:homa610"/>
     </sliver_type>
-    <interface client_id="loadgen:if0"/>
-    <interface client_id="loadgen:if1"/>
-    <interface client_id="loadgen:if2"/>
+    <interface client_id="node2:if0"/>
+    <interface client_id="node2:if1"/>
+    <interface client_id="node2:if2"/>
   </node>
 
   <node client_id="node3" exclusive="true">
@@ -47,34 +49,33 @@
     <sliver_type name="raw-pc">
       <disk_image name="urn:publicid:IDN+emulab.net+image+homa-vs-tcp:homa610"/>
     </sliver_type>
-    <interface client_id="receiver:if0"/>
-    <interface client_id="receiver:if1"/>
-    <interface client_id="receiver:if2"/>
+    <interface client_id="node3:if0"/>
+    <interface client_id="node3:if1"/>
   </node>
 
-  <link client_id="link-loadgen-tcp">
-    <interface_ref client_id="loadgen:if0"/>
-    <interface_ref client_id="tcp-server:if0"/>
+  <link client_id="link-node2-node0">
+    <interface_ref client_id="node2:if0"/>
+    <interface_ref client_id="node0:if0"/>
   </link>
 
-  <link client_id="link-loadgen-homa">
-    <interface_ref client_id="loadgen:if1"/>
-    <interface_ref client_id="homa-server:if0"/>
+  <link client_id="link-node2-node3">
+    <interface_ref client_id="node2:if1"/>
+    <interface_ref client_id="node3:if0"/>
   </link>
 
-  <link client_id="link-loadgen-receiver">
-    <interface_ref client_id="loadgen:if2"/>
-    <interface_ref client_id="receiver:if0"/>
+  <link client_id="link-node2-node1">
+    <interface_ref client_id="node2:if2"/>
+    <interface_ref client_id="node1:if0"/>
   </link>
 
-  <link client_id="link-tcp-receiver">
-    <interface_ref client_id="tcp-server:if1"/>
-    <interface_ref client_id="receiver:if1"/>
+  <link client_id="link-node0-node1">
+    <interface_ref client_id="node0:if2"/>
+    <interface_ref client_id="node1:if2"/>
   </link>
 
-  <link client_id="link-homa-receiver">
-    <interface_ref client_id="homa-server:if1"/>
-    <interface_ref client_id="receiver:if2"/>
+  <link client_id="link-node0-node1-alt">
+    <interface_ref client_id="node0:if1"/>
+    <interface_ref client_id="node1:if1"/>
   </link>
 
 </rspec>
