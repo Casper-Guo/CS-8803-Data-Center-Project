@@ -28,4 +28,4 @@ for _ in range(NUM_MESSAGES):
     else:
         size = random.randint(1_000_000, 2_000_000)  # ≥1MB
     send_message(size)
-    time.sleep(random.uniform(0.001, 0.01))  # simulate burst gaps
+    time.sleep(random.uniform(0.001, 0.01))

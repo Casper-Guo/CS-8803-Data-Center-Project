@@ -1,22 +1,18 @@
 import csv
 import numpy as np
 
-# -- Loadgen log (sender-side)
 sender_log = "send_tcp.log"
 sender_latencies = []
 
-# -- TCP Server log (receiver-side)
 server_log = "tcp_server_metrics.log"
 server_latencies = []
 msg_sizes = []
 
-# -- Receiver log (system stats via dstat)
 dstat_log = "dstat.csv"
 cpu_usages = []
 net_rx = []
 net_tx = []
 
-# Parse sender log
 with open(sender_log) as f:
     for row in csv.reader(f):
         if len(row) != 4 or row[0].startswith("timestamp"):
@@ -24,7 +20,6 @@ with open(sender_log) as f:
         _, _, size, latency_us = row
         sender_latencies.append(float(latency_us))
 
-# Parse TCP server log
 with open(server_log) as f:
     for row in csv.reader(f):
         if len(row) != 3 or row[0].startswith("timestamp"):
@@ -33,7 +28,6 @@ with open(server_log) as f:
         server_latencies.append(float(latency_us))
         msg_sizes.append(int(size))
 
-# Parse dstat for CPU and network
 with open(dstat_log) as f:
     for row in csv.reader(f):
         if row[0].startswith("epoch") or "usr" not in row[0]:
