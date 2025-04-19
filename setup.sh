@@ -9,6 +9,7 @@ sudo insmod homa.ko
 # compile utils
 cd ~/HomaModule/util/
 make
+sudo cp homa_prio cp_node metrics.py /usr/local/bin
 cd ..
 
 # choose your own configuration options
