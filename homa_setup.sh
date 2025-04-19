@@ -21,5 +21,5 @@ cd ..
 echo "Inserting Homa kernel module..."
 sudo insmod homa.ko || echo "homa.ko may already be inserted."
 
-sudo apt-get update && sudo apt-get install python3-pip
-sudo apt-get install python3-matplotlib
+sudo apt-get -y update && \
+sudo apt-get -y install python3-pip python3-matplotlib
