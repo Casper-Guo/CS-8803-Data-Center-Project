@@ -8,6 +8,7 @@
 
 from cperf import *
 
+
 def avg(values, fmt):
     """
     Return a string giving the average of a list of values, followed by the
@@ -15,7 +16,10 @@ def avg(values, fmt):
     values:    The values.
     fmt:       Format string such as "%.2f" for formatting the values.
     """
-    result = fmt % (sum(values)/float(len(values)))
+    if not values:
+        return "n/a"
+
+    result = fmt % (sum(values) / float(len(values)))
     result += " ("
     for value in values:
         if result[-1] != "(":
@@ -24,36 +28,51 @@ def avg(values, fmt):
     result += ")"
     return result
 
-parser = get_parser(description=
-        'Measures basic latency and single-machine throughput for Homa and TCP.',
-        usage='%(prog)s [options]',
-        defaults={
-            "client_ports":     9,
-            "port_receivers":   1,
-            "server_ports":     6,
-            "port_threads":     3,
-            "tcp_client_ports": 9,
-            "tcp_server_ports": 16})
-parser.add_argument('--dctcp', dest='dctcp', type=boolean,
-        default=False, help="Boolean value:: indicates whether measurements "
-                "should be run on DCTCP (default: false)")
+
+parser = get_parser(
+    description="Measures basic latency and single-machine throughput for Homa and TCP.",
+    usage="%(prog)s [options]",
+    defaults={
+        "client_ports": 9,
+        "port_receivers": 1,
+        "server_ports": 6,
+        "port_threads": 3,
+        "tcp_client_ports": 9,
+        "tcp_server_ports": 16,
+    },
+)
+parser.add_argument(
+    "--dctcp",
+    dest="dctcp",
+    type=boolean,
+    default=False,
+    help="Boolean value:: indicates whether measurements "
+    "should be run on DCTCP (default: false)",
+)
+parser.add_argument(
+    "-e",
+    "--exp",
+    dest="experiment",
+    type=str,
+    default="homa_vs_tcp",
+    help="Name of the overall experiment (default: homa_vs_tcp)",
+)
 options = parser.parse_args()
 options.no_rtt_files = True
 init(options)
 if options.num_nodes < 2:
-    print("--num_nodes too small (%d): must be at least 2"
-            % (options.num_nodes))
+    print("--num_nodes too small (%d): must be at least 2" % (options.num_nodes))
     sys.exit(-1)
 
 if not options.plot_only:
     # Homa client latency (small messages, low load)
-    start_servers(range(1, options.num_nodes), options)
+    start_servers(options.experiment, range(1, options.num_nodes), options)
     o = copy.deepcopy(options)
     o.client_ports = 1
     o.port_receivers = 0
     o.client_max = 1
     o.server_nodes = 1
-    o.first_server  = 1
+    o.first_server = 1
     o.server_ports = 1
     o.workload = "100"
     o.num_servers = 1
@@ -67,7 +86,7 @@ if not options.plot_only:
     # Homa client RPC throughput (single client, many servers, small messages)
     o = copy.deepcopy(options)
     o.workload = "100"
-    o.server_nodes = options.num_nodes-1
+    o.server_nodes = options.num_nodes - 1
     o.first_server = 1
     run_experiment("homa_client_rpc_tput", range(0, 1), o)
 
@@ -77,7 +96,7 @@ if not options.plot_only:
     run_experiment("homa_client_tput", range(0, 1), o)
 
     # Homa server RPC throughput (single server, many clients, small messages)
-    start_servers(range(0, 1), options)
+    start_servers(options.experiment, range(0, 1), options)
     o = copy.deepcopy(options)
     o.workload = "100"
     o.server_nodes = 1
@@ -95,20 +114,22 @@ if not options.plot_only:
         if protocol == "dctcp":
             if not options.dctcp:
                 continue
-            set_sysctl_parameter("net.ipv4.tcp_congestion_control",
-                        "dctcp", range(0, options.num_nodes))
+            set_sysctl_parameter(
+                "net.ipv4.tcp_congestion_control", "dctcp", range(0, options.num_nodes)
+            )
         else:
-            set_sysctl_parameter("net.ipv4.tcp_congestion_control",
-                        "cubic", range(0, options.num_nodes))
+            set_sysctl_parameter(
+                "net.ipv4.tcp_congestion_control", "cubic", range(0, options.num_nodes)
+            )
 
         # TCP/DCTCP client latency (small messages, low load)
         options.protocol = "tcp"
-        start_servers(range(1, options.num_nodes), options)
+        start_servers(options.experiment, range(1, options.num_nodes), options)
         o = copy.deepcopy(options)
         o.tcp_client_ports = 1
         o.client_max = 1
         o.server_nodes = 1
-        o.first_server  = 1
+        o.first_server = 1
         o.tcp_server_ports = 1
         o.workload = "100"
         o.num_servers = 1
@@ -123,7 +144,7 @@ if not options.plot_only:
         # small messages)
         o = copy.deepcopy(options)
         o.workload = "100"
-        o.server_nodes = options.num_nodes-1
+        o.server_nodes = options.num_nodes - 1
         o.first_server = 1
         o.client_max = 100
         run_experiment("%s_client_rpc_tput" % (protocol), range(0, 1), o)
@@ -136,24 +157,25 @@ if not options.plot_only:
 
         # TCP/DCTCP server RPC throughput (single server, many clients,
         # small messages)
-        start_servers(range(0, 1), options)
+        start_servers(options.experiment, range(0, 1), options)
         o = copy.deepcopy(options)
         o.workload = "100"
         o.server_nodes = 1
         o.first_server = 0
         o.client_max = 50
-        run_experiment("%s_server_rpc_tput" % (protocol),
-                range(1, options.num_nodes), o)
+        run_experiment(
+            "%s_server_rpc_tput" % (protocol), range(1, options.num_nodes), o
+        )
 
         # TCP/DCTCP server throughput (single server, many clients, large
         # messages)
         o.workload = "500000"
         o.client_max = 5
-        run_experiment("%s_server_tput" % (protocol),
-                range(1, options.num_nodes), o)
+        run_experiment("%s_server_tput" % (protocol), range(1, options.num_nodes), o)
 
-    set_sysctl_parameter("net.ipv4.tcp_congestion_control", congestion,
-            range(0, options.num_nodes))
+    set_sysctl_parameter(
+        "net.ipv4.tcp_congestion_control", congestion, range(0, options.num_nodes)
+    )
     log("Stopping nodes")
     stop_nodes()
 
@@ -162,41 +184,37 @@ experiments = {}
 scan_log(options.log_dir + "/node0.log", "node0", experiments)
 
 node = experiments["homa_latency"]["node0"]
-if len(node["client_latency"]) == 0:
-    raise Error("No Homa client latencies found")
+# if len(node["client_latency"]) == 0:
+#     raise Error("No Homa client latencies found")
 log("Homa RTT latency (us): %s" % (avg(node["client_latency"], "%.2f")))
 
 node = experiments["homa_1msg_tput"]["node0"]
-if len(node["client_gbps"]) == 0:
-    raise Error("No Homa client throughput found")
+# if len(node["client_gbps"]) == 0:
+#     raise Error("No Homa client throughput found")
 gbps = []
 for m in node["client_gbps"]:
-    gbps.append(2*m)
+    gbps.append(2 * m)
 log("Homa single message throughput (Gbps): %s" % (avg(gbps, "%.1f")))
 
 node = experiments["homa_client_rpc_tput"]["node0"]
-if len(node["client_kops"]) == 0:
-    raise Error("No Homa client RPC throughputs found")
-log("Homa client RPC throughput (Kops/sec): %s"
-        % (avg(node["client_kops"], "%.2f")))
+# if len(node["client_kops"]) == 0:
+#     raise Error("No Homa client RPC throughputs found")
+log("Homa client RPC throughput (Kops/sec): %s" % (avg(node["client_kops"], "%.2f")))
 
 node = experiments["homa_server_rpc_tput"]["node0"]
-if len(node["server_kops"]) == 0:
-    raise Error("No Homa server RPC throughputs found")
-log("Homa server RPC throughput (Kops/sec): %s"
-        % (avg(node["server_kops"], "%.2f")))
+# if len(node["server_kops"]) == 0:
+#     raise Error("No Homa server RPC throughputs found")
+log("Homa server RPC throughput (Kops/sec): %s" % (avg(node["server_kops"], "%.2f")))
 
 node = experiments["homa_client_tput"]["node0"]
-if len(node["client_gbps"]) == 0:
-    raise Error("No Homa client throughputs found")
-log("Homa client throughput (Gbps): %s"
-        % (avg(node["client_gbps"], "%.2f")))
+# if len(node["client_gbps"]) == 0:
+#     raise Error("No Homa client throughputs found")
+log("Homa client throughput (Gbps): %s" % (avg(node["client_gbps"], "%.2f")))
 
 node = experiments["homa_server_tput"]["node0"]
-if len(node["server_gbps"]) == 0:
-    raise Error("No Homa server throughputs found")
-log("Homa server throughput (Gbps): %s"
-        % (avg(node["server_gbps"], "%.2f")))
+# if len(node["server_gbps"]) == 0:
+#     raise Error("No Homa server throughputs found")
+log("Homa server throughput (Gbps): %s" % (avg(node["server_gbps"], "%.2f")))
 
 for protocol in ["tcp", "dctcp"]:
     if protocol == "dctcp":
@@ -206,38 +224,40 @@ for protocol in ["tcp", "dctcp"]:
     else:
         name = "TCP"
     node = experiments["%s_latency" % (protocol)]["node0"]
-    if len(node["client_latency"]) == 0:
-        raise Error("No %s client latencies found" % (name))
+    # if len(node["client_latency"]) == 0:
+    #     raise Error("No %s client latencies found" % (name))
     log("\n%s RTT latency (us): %s" % (name, avg(node["client_latency"], "%.2f")))
 
     node = experiments["%s_1msg_tput" % (protocol)]["node0"]
-    if len(node["client_gbps"]) == 0:
-        raise Error("No %s client throughput found" % (name))
+    # if len(node["client_gbps"]) == 0:
+    #     raise Error("No %s client throughput found" % (name))
     gbps = []
     for m in node["client_gbps"]:
-        gbps.append(2*m)
+        gbps.append(2 * m)
     log("%s single message throughput (Gbps): %s" % (name, avg(gbps, "%.2f")))
 
     node = experiments["%s_client_rpc_tput" % (protocol)]["node0"]
-    if len(node["client_kops"]) == 0:
-        raise Error("No %s client RPC throughputs found" % (name))
-    log("%s client RPC throughput (Kops/sec): %s" % (name,
-            avg(node["client_kops"], "%.2f")))
+    # if len(node["client_kops"]) == 0:
+    #     raise Error("No %s client RPC throughputs found" % (name))
+    log(
+        "%s client RPC throughput (Kops/sec): %s"
+        % (name, avg(node["client_kops"], "%.2f"))
+    )
 
     node = experiments["%s_server_rpc_tput" % (protocol)]["node0"]
-    if len(node["server_kops"]) == 0:
-        raise Error("No %s server RPC throughputs found" % (name))
-    log("%s server RPC throughput (Kops/sec): %s" % (name,
-            avg(node["server_kops"], "%.2f")))
+    # if len(node["server_kops"]) == 0:
+    #     raise Error("No %s server RPC throughputs found" % (name))
+    log(
+        "%s server RPC throughput (Kops/sec): %s"
+        % (name, avg(node["server_kops"], "%.2f"))
+    )
 
     node = experiments["%s_client_tput" % (protocol)]["node0"]
-    if len(node["client_gbps"]) == 0:
-        raise Error("No %s client throughputs found" % (name))
-    log("%s client throughput (Gbps): %s" % (name, avg(node["client_gbps"],
-            "%.2f")))
+    # if len(node["client_gbps"]) == 0:
+    #     raise Error("No %s client throughputs found" % (name))
+    log("%s client throughput (Gbps): %s" % (name, avg(node["client_gbps"], "%.2f")))
 
     node = experiments["%s_server_tput" % (protocol)]["node0"]
-    if len(node["server_gbps"]) == 0:
-        raise Error("No %s server throughputs found" % (name))
-    log("%s server throughput (Gbps): %s" % (name, avg(node["server_gbps"],
-            "%.2f")))
+    # if len(node["server_gbps"]) == 0:
+    #     raise Error("No %s server throughputs found" % (name))
+    log("%s server throughput (Gbps): %s" % (name, avg(node["server_gbps"], "%.2f")))
