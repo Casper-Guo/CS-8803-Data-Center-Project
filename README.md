@@ -1,15 +1,12 @@
 # CS-8803-Data-Center-Project
 
+## CloudLab SSH Instructions
+- Use `ssh-keygen -t rsa` to generate key pairs on all/both nodes.
+- Copy the public key from `.ssh/id_rsa.pub` and add it to ALL nodes' `.ssh/authorized_host` file
+
 ## To copy in the new cp_node files:
 -  for server node (node 1): ~/Desktop/cp_node_server.cc kdaga7@pc330.emulab.net:/users/kdaga7/HomaModule/util/cp_node.cc (replace with your IP and file location)
 - for client node (node 0): scp ~/Desktop/cp_node_client.cc kdaga7@pc324.emulab.net:/users/kdaga7/HomaModule/util/cp_node.cc
-
-
-
-
-
-
-
 
 ## Things to change once experiment starts
 - `send_tcp.py` replace internal IP of TCP server
