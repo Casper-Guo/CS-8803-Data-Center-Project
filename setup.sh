@@ -15,5 +15,5 @@ cd ..
 ./cloudlab/bin/config
 sudo cp ./cloudlab/bin/config ./cloudlab/bin/switch.py /usr/local/bin
 
-sudo apt-get update && sudo apt-get install python3-pip
-sudo apt-get install python3-matplotlib
+sudo apt-get update && sudo apt-get install -y python3-pip
+sudo apt-get install -y python3-matplotlib
