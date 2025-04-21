@@ -13,3 +13,9 @@
 - `ls -td logs/* | head -n 1` to get the most recent logs folder, use that
 - `python3 cperf.py --plot-only --log-dir <log directory>`
 - Copy into your local laptop from local terminal and view the pdfs
+
+## To run mixed workload (80% small, 20% large)
+- copy over modified files for cp_node.cc, dist.cc, cperf.py, cp_mixed (should be cp_basic) into util
+- on node1: ./cp_node server --ports 3 --protocol homa
+- on node0: ./cp_node client --ports 3 --client-max 10 --protocol homa --workload mixed
+- haven't been able to figure out how to log yet.

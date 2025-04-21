@@ -525,6 +525,7 @@ def start_nodes(ids, options):
     log_level = "verbose" if verbose else "normal"
     command = "log --file node.log --level %s" % (log_level)
     for id in started:
+        log(f"1 [DEBUG run_experiments] node{id} -> {command}")
         active_nodes[id].stdin.write(command + "\n")
         active_nodes[id].stdin.flush()
     wait_output("% ", started, command)
@@ -574,6 +575,7 @@ def do_cmd(command, ids, ids2 = []):
             nodes.append(id)
     for id in nodes:
         vlog("Command for node%d: %s" % (id, command))
+        log(f"2 [DEBUG run_experiments] node{id} -> {command}")
         active_nodes[id].stdin.write(command + "\n")
         try:
             active_nodes[id].stdin.flush()
@@ -721,6 +723,8 @@ def run_experiment(name, clients, options):
                     id,
                     name,
                     options.ipv6)
+        if options.workload == "mixed":
+            command = command.replace("--workload mixed", "--workload mixed")
             if "unloaded" in options:
                 command += " --unloaded %d" % (options.unloaded)
         else:
@@ -746,6 +750,7 @@ def run_experiment(name, clients, options):
                     id,
                     name,
                     options.ipv6)
+        log(f"3 [DEBUG run_experiments] node{id} -> {command}")
         active_nodes[id].stdin.write(command + "\n")
         try:
             active_nodes[id].stdin.flush()
@@ -914,6 +919,7 @@ def run_experiments(*args):
                         id,
                         exp.name,
                         exp.ipv6)
+            log(f"4 [DEBUG run_experiments] node{id} -> {command}")
             active_nodes[id].stdin.write(command + "\n")
             try:
                 active_nodes[id].stdin.flush()
