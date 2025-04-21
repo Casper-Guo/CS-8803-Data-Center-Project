@@ -12,8 +12,7 @@ make
 sudo cp homa_prio cp_node metrics.py /usr/local/bin
 cd ..
 
-# choose your own configuration options
-# ./cloudlab/bin/config --help
+./cloudlab/bin/config
 
 sudo apt-get update && sudo apt-get install -y python3-pip
 sudo apt-get install -y python3-matplotlib
