@@ -10,6 +10,7 @@
 
 ## Run tests
 - go into utils and run `./cp_basic -n 2 -b 20 -w w4 -s 10 -v`
+- `scp cperf.py kdaga7@amd218.utah.cloudlab.us:~/HomaModule/util/cperf.py` and `scp cp_basic kdaga7@amd218.utah.cloudlab.us:~/HomaModule/util/cp_basic` to all nodes
 - `ls -td logs/* | head -n 1` to get the most recent logs folder, use that
 - `python3 cperf.py --plot-only --log-dir <log directory>`
 - Copy into your local laptop from local terminal and view the pdfs
