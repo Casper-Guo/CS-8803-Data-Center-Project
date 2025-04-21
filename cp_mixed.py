@@ -66,120 +66,141 @@ if options.num_nodes < 2:
 
 if not options.plot_only:
     # Homa client latency (small messages, low load)
-    start_servers(options.experiment, range(1, options.num_nodes), options)
-    o = copy.deepcopy(options)
-    o.client_ports = 1
-    o.port_receivers = 0
-    o.client_max = 1
-    o.server_nodes = 1
-    o.first_server = 1
-    o.server_ports = 1
-    o.workload = "100"
-    o.num_servers = 1
-    o.first_server = 1
-    run_experiment("homa_latency", range(0, 1), o)
+#     start_servers(options.experiment, range(1, options.num_nodes), options)
+#     o = copy.deepcopy(options)
+#     o.client_ports = 1
+#     o.port_receivers = 0
+#     o.client_max = 1
+#     o.server_nodes = 1
+#     o.first_server = 1
+#     o.server_ports = 1
+#     o.workload = "100"
+#     o.num_servers = 1
+#     o.first_server = 1
+#     run_experiment("homa_latency", range(0, 1), o)
 
     # Homa throughput with a single active (large) message
-    o.workload = "500000"
-    run_experiment("homa_1msg_tput", range(0, 1), o)
+#     o.workload = "500000"
+#     run_experiment("homa_1msg_tput", range(0, 1), o)
 
     # Homa client RPC throughput (single client, many servers, small messages)
-    o = copy.deepcopy(options)
-    o.workload = "100"
-    o.server_nodes = options.num_nodes - 1
-    o.first_server = 1
-    run_experiment("homa_client_rpc_tput", range(0, 1), o)
+#     o = copy.deepcopy(options)
+#     o.workload = "100"
+#     o.server_nodes = options.num_nodes - 1
+#     o.first_server = 1
+#     run_experiment("homa_client_rpc_tput", range(0, 1), o)
 
     # Homa client throughput (single client, many servers, large messages)
-    o.workload = "500000"
-    o.client_max = 50
-    run_experiment("homa_client_tput", range(0, 1), o)
+#     o.workload = "500000"
+#     o.client_max = 50
+#     run_experiment("homa_client_tput", range(0, 1), o)
 
     # Homa server RPC throughput (single server, many clients, small messages)
-    start_servers(options.experiment, range(0, 1), options)
-    o = copy.deepcopy(options)
-    o.workload = "100"
-    o.server_nodes = 1
-    o.first_server = 0
-    o.client_max = 10
-    run_experiment("homa_server_rpc_tput", range(1, options.num_nodes), o)
+#     start_servers(options.experiment, range(0, 1), options)
+#     o = copy.deepcopy(options)
+#     o.workload = "100"
+#     o.server_nodes = 1
+#     o.first_server = 0
+#     o.client_max = 10
+#     run_experiment("homa_server_rpc_tput", range(1, options.num_nodes), o)
 
     # Homa server throughput (single server, many clients, large messages)
-    o.workload = "500000"
-    o.client_max = 5
-    run_experiment("homa_server_tput", range(1, options.num_nodes), o)
+#     o.workload = "500000"
+#     o.client_max = 5
+#     run_experiment("homa_server_tput", range(1, options.num_nodes), o)
 
-    congestion = get_sysctl_parameter("net.ipv4.tcp_congestion_control")
-    for protocol in ["tcp", "dctcp"]:
-        if protocol == "dctcp":
-            if not options.dctcp:
-                continue
-            set_sysctl_parameter(
-                "net.ipv4.tcp_congestion_control", "dctcp", range(0, options.num_nodes)
-            )
-        else:
-            set_sysctl_parameter(
-                "net.ipv4.tcp_congestion_control", "cubic", range(0, options.num_nodes)
-            )
+#     congestion = get_sysctl_parameter("net.ipv4.tcp_congestion_control")
+#     for protocol in ["tcp", "dctcp"]:
+#         if protocol == "dctcp":
+#             if not options.dctcp:
+#                 continue
+#             set_sysctl_parameter(
+#                 "net.ipv4.tcp_congestion_control", "dctcp", range(0, options.num_nodes)
+#             )
+#         else:
+#             set_sysctl_parameter(
+#                 "net.ipv4.tcp_congestion_control", "cubic", range(0, options.num_nodes)
+#             )
 
         # TCP/DCTCP client latency (small messages, low load)
-        options.protocol = "tcp"
-        start_servers(options.experiment, range(1, options.num_nodes), options)
-        o = copy.deepcopy(options)
-        o.tcp_client_ports = 1
-        o.client_max = 1
-        o.server_nodes = 1
-        o.first_server = 1
-        o.tcp_server_ports = 1
-        o.workload = "100"
-        o.num_servers = 1
-        o.first_server = 1
-        run_experiment("%s_latency" % (protocol), range(0, 1), o)
+#         options.protocol = "tcp"
+#         start_servers(options.experiment, range(1, options.num_nodes), options)
+#         o = copy.deepcopy(options)
+#         o.tcp_client_ports = 1
+#         o.client_max = 1
+#         o.server_nodes = 1
+#         o.first_server = 1
+#         o.tcp_server_ports = 1
+#         o.workload = "100"
+#         o.num_servers = 1
+#         o.first_server = 1
+#         run_experiment("%s_latency" % (protocol), range(0, 1), o)
 
         # TCP/DCTCP throughput with a single active (large) message
-        o.workload = "500000"
-        run_experiment("%s_1msg_tput" % (protocol), range(0, 1), o)
+#         o.workload = "500000"
+#         run_experiment("%s_1msg_tput" % (protocol), range(0, 1), o)
 
         # TCP/DCTCP client RPC throughput (single client, many servers,
         # small messages)
-        o = copy.deepcopy(options)
-        o.workload = "100"
-        o.server_nodes = options.num_nodes - 1
-        o.first_server = 1
-        o.client_max = 100
-        run_experiment("%s_client_rpc_tput" % (protocol), range(0, 1), o)
+#         o = copy.deepcopy(options)
+#         o.workload = "100"
+#         o.server_nodes = options.num_nodes - 1
+#         o.first_server = 1
+#         o.client_max = 100
+#         run_experiment("%s_client_rpc_tput" % (protocol), range(0, 1), o)
 
         # TCP/DCTCP client throughput (single client, many servers,
         # large messages)
-        o.workload = "500000"
-        o.client_max = 20
-        run_experiment("%s_client_tput" % (protocol), range(0, 1), o)
+#         o.workload = "500000"
+#         o.client_max = 20
+#         run_experiment("%s_client_tput" % (protocol), range(0, 1), o)
 
         # TCP/DCTCP server RPC throughput (single server, many clients,
         # small messages)
-        start_servers(options.experiment, range(0, 1), options)
-        o = copy.deepcopy(options)
-        o.workload = "100"
-        o.server_nodes = 1
-        o.first_server = 0
-        o.client_max = 50
-        run_experiment(
-            "%s_server_rpc_tput" % (protocol), range(1, options.num_nodes), o
-        )
+#         start_servers(options.experiment, range(0, 1), options)
+#         o = copy.deepcopy(options)
+#         o.workload = "100"
+#         o.server_nodes = 1
+#         o.first_server = 0
+#         o.client_max = 50
+#         run_experiment(
+#             "%s_server_rpc_tput" % (protocol), range(1, options.num_nodes), o
+#         )
 
         # TCP/DCTCP server throughput (single server, many clients, large
         # messages)
-        o.workload = "500000"
-        o.client_max = 5
-        run_experiment("%s_server_tput" % (protocol), range(1, options.num_nodes), o)
+#         o.workload = "500000"
+#         o.client_max = 5
+#         run_experiment("%s_server_tput" % (protocol), range(1, options.num_nodes), o)
 
-    set_sysctl_parameter(
-        "net.ipv4.tcp_congestion_control", congestion, range(0, options.num_nodes)
-    )
-    log("Stopping nodes")
-    stop_nodes()
+#     set_sysctl_parameter(
+#         "net.ipv4.tcp_congestion_control", congestion, range(0, options.num_nodes)
+#     )
+#     log("Stopping nodes")
+#     stop_nodes()
 
 # Parse the log files to extract useful data
+
+
+    # === Mixed workload experiments only ===
+
+
+
+    if not options.skip or "mixed_homa" not in options.skip:
+        log("\nRunning mixed Homa workload (80% small, 20% large)")
+        options.workload = "mixed"
+        options.protocol = "homa"
+        start_servers(options.experiment, range(1, options.num_nodes), options)
+        run_experiment("homa_mixed", range(0, 1), options)
+
+
+    if not options.skip or "mixed_tcp" not in options.skip:
+        log("\nRunning mixed TCP workload (80% small, 20% large)")
+        options.workload = "mixed"
+        options.protocol = "tcp"
+        start_servers(options.experiment, range(1, options.num_nodes), options)
+        run_experiment("tcp_mixed", range(0, 1), options)
+    
 
 log_dir = options.log_dir
 experiments = {}
@@ -201,7 +222,7 @@ for fname in os.listdir(log_dir):
         node = fname.replace(".log", "")
         dynamic_scan_log_init(os.path.join(log_dir, fname), node)
 
-# Second pass: now its safe to scan the logs
+# Second pass: now it's safe to scan the logs
 for node in experiments.get("homa_vs_tcp", {}):  # You can loop over all experiments if needed
     scan_log(os.path.join(log_dir, node + ".log"), node, experiments)
 
