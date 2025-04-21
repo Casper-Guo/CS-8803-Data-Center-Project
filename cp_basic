@@ -58,7 +58,7 @@ parser.add_argument(
     help="Name of the overall experiment (default: homa_vs_tcp)",
 )
 options = parser.parse_args()
-options.no_rtt_files = True
+options.no_rtt_files = False
 init(options)
 if options.num_nodes < 2:
     print("--num_nodes too small (%d): must be at least 2" % (options.num_nodes))
@@ -180,84 +180,50 @@ if not options.plot_only:
     stop_nodes()
 
 # Parse the log files to extract useful data
+
+log_dir = options.log_dir
 experiments = {}
-scan_log(options.log_dir + "/node0.log", "node0", experiments)
 
-node = experiments["homa_latency"]["node0"]
-# if len(node["client_latency"]) == 0:
-#     raise Error("No Homa client latencies found")
-log("Homa RTT latency (us): %s" % (avg(node["client_latency"], "%.2f")))
+def dynamic_scan_log_init(logfile, node):
+    with open(logfile, 'r') as f:
+        for line in f:
+            match = re.search(r'for (\w+) experiment', line)
+            if match:
+                exp_name = match.group(1)
+                if exp_name not in experiments:
+                    experiments[exp_name] = {}
+                if node not in experiments[exp_name]:
+                    experiments[exp_name][node] = {}
 
-node = experiments["homa_1msg_tput"]["node0"]
-# if len(node["client_gbps"]) == 0:
-#     raise Error("No Homa client throughput found")
-gbps = []
-for m in node["client_gbps"]:
-    gbps.append(2 * m)
-log("Homa single message throughput (Gbps): %s" % (avg(gbps, "%.1f")))
+# First pass: build the experiments dictionary from log file names
+for fname in os.listdir(log_dir):
+    if fname.startswith("node") and fname.endswith(".log"):
+        node = fname.replace(".log", "")
+        dynamic_scan_log_init(os.path.join(log_dir, fname), node)
 
-node = experiments["homa_client_rpc_tput"]["node0"]
-# if len(node["client_kops"]) == 0:
-#     raise Error("No Homa client RPC throughputs found")
-log("Homa client RPC throughput (Kops/sec): %s" % (avg(node["client_kops"], "%.2f")))
+# Second pass: now it's safe to scan the logs
+for node in experiments.get("homa_vs_tcp", {}):  # You can loop over all experiments if needed
+    scan_log(os.path.join(log_dir, node + ".log"), node, experiments)
 
-node = experiments["homa_server_rpc_tput"]["node0"]
-# if len(node["server_kops"]) == 0:
-#     raise Error("No Homa server RPC throughputs found")
-log("Homa server RPC throughput (Kops/sec): %s" % (avg(node["server_kops"], "%.2f")))
+metrics = [
+    ("client_latency", "RTT latency (us)", "%.2f", 1),
+    ("client_gbps", "single message throughput (Gbps)", "%.1f", 2),
+    ("client_kops", "client RPC throughput (Kops/sec)", "%.2f", 1),
+    ("server_kops", "server RPC throughput (Kops/sec)", "%.2f", 1),
+    ("server_gbps", "server throughput (Gbps)", "%.2f", 1),
+]
 
-node = experiments["homa_client_tput"]["node0"]
-# if len(node["client_gbps"]) == 0:
-#     raise Error("No Homa client throughputs found")
-log("Homa client throughput (Gbps): %s" % (avg(node["client_gbps"], "%.2f")))
-
-node = experiments["homa_server_tput"]["node0"]
-# if len(node["server_gbps"]) == 0:
-#     raise Error("No Homa server throughputs found")
-log("Homa server throughput (Gbps): %s" % (avg(node["server_gbps"], "%.2f")))
-
-for protocol in ["tcp", "dctcp"]:
-    if protocol == "dctcp":
-        if not options.dctcp:
-            break
-        name = "DCTCP"
-    else:
-        name = "TCP"
-    node = experiments["%s_latency" % (protocol)]["node0"]
-    # if len(node["client_latency"]) == 0:
-    #     raise Error("No %s client latencies found" % (name))
-    log("\n%s RTT latency (us): %s" % (name, avg(node["client_latency"], "%.2f")))
-
-    node = experiments["%s_1msg_tput" % (protocol)]["node0"]
-    # if len(node["client_gbps"]) == 0:
-    #     raise Error("No %s client throughput found" % (name))
-    gbps = []
-    for m in node["client_gbps"]:
-        gbps.append(2 * m)
-    log("%s single message throughput (Gbps): %s" % (name, avg(gbps, "%.2f")))
-
-    node = experiments["%s_client_rpc_tput" % (protocol)]["node0"]
-    # if len(node["client_kops"]) == 0:
-    #     raise Error("No %s client RPC throughputs found" % (name))
-    log(
-        "%s client RPC throughput (Kops/sec): %s"
-        % (name, avg(node["client_kops"], "%.2f"))
-    )
-
-    node = experiments["%s_server_rpc_tput" % (protocol)]["node0"]
-    # if len(node["server_kops"]) == 0:
-    #     raise Error("No %s server RPC throughputs found" % (name))
-    log(
-        "%s server RPC throughput (Kops/sec): %s"
-        % (name, avg(node["server_kops"], "%.2f"))
-    )
-
-    node = experiments["%s_client_tput" % (protocol)]["node0"]
-    # if len(node["client_gbps"]) == 0:
-    #     raise Error("No %s client throughputs found" % (name))
-    log("%s client throughput (Gbps): %s" % (name, avg(node["client_gbps"], "%.2f")))
-
-    node = experiments["%s_server_tput" % (protocol)]["node0"]
-    # if len(node["server_gbps"]) == 0:
-    #     raise Error("No %s server throughputs found" % (name))
-    log("%s server throughput (Gbps): %s" % (name, avg(node["server_gbps"], "%.2f")))
+for proto in ['homa', 'tcp', 'dctcp']:
+    if proto == 'dctcp' and not options.dctcp:
+        continue
+    name = proto.upper() if proto != 'homa' else 'Homa'
+    for metric, label, fmt, multiplier in metrics:
+        exp_prefix = f"{proto}_{metric.split('_')[0]}"
+        for node in ['node0']:  # Change or extend nodesf as needed
+            node_data = experiments.get(exp_prefix, {}).get(node, {})
+            values = node_data.get(metric, [])
+            if not values:
+                log(f"{name} {label}: N/A")
+            else:
+                scaled = [multiplier * x for x in values]
+                log(f"{name} {label}: {avg(scaled, fmt)}")
